@@ -1,5 +1,5 @@
 
-## chapter 1 
+## chapter 1 History
 ### DHTML
 DHTML is short for Dynamic HTML. Not a technology in and of itself, DHTML is a shorthand term for describing the combination of HTML, CSS, and JavaScript. The thinking behind DHTML went like this:
 • You could use HTML to mark up your web page into elements.
@@ -225,3 +225,168 @@ shopping.setAttribute("title","a list of goods");
 
 ### dynamic changing
 Note that even when a document has been changed by setAttribute, you won’t see that change reflected when you use the view source option in your web browser. This is because the **DOM has dynamically updated the contents of the page after it has been loaded. The real power of the DOM is that the contents of a page can be updated without refreshing the page in the browser.**
+
+
+## Chapter 4 A image gallary
+### A callback function
+You can put the navigation for the entire gallery on one page and then download each image as, and when, it’s required.
+1. Put a placeholder image on the same page as the list.
+2. When the user clicks a link, intercept the default behavior.
+3. Replace the placeholder image with the image from the link.
+
+In order to swap out the placeholder image, I need to change its src attribute.
+```javascript
+function showPic(whichpic){
+  var placeholder=document.getElementById("placeholder").
+  var source=showpic.getAttribute("href");
+  placeholder.setAttribute("src", source);
+  // or, placeholder.src = source;
+}
+```
+### Event handlers
+Event handlers are used to **invoke some JavaScript** when a certain **action** happens. If you want some behavior to be triggered when the user moves their cursor over an element, you use the onmouseover event handler. There’s a corresponding onmouseout event.
+
+showPic() expects one argument: an element node that has an href attribute. When I place the onclick event handler in a link, I want to send that link to the showPic function as the argument. Luckily, there’s a very short but powerful way of doing just that. The keyword this is a shorthand way of saying **“this object.”** In this case, I’ll use this to mean **“this `<a>` element node”:**
+```
+showPic(this)
+```
+
+I can add that using the onclick event handler. Here’s the syntax for adding JavaScript using an event handler:
+```javascript
+event = "JavaScript statement(s)"
+
+//This will invoke the showPic function with the onclick event handler
+onclick = "showPic(this);"
+```
+However, if I simply add this event handler to a link in my list, I’ll be faced with a problem. The function will be invoked, **but the default behavior for clicking on a link will also be invoked**. This means that the user will be taken to the image—exactly what we didn’t want to happen. I need to **stop the default behavior from being invoked**.
+
+Let’s take a closer look at how event handling works. When you attach an event handler to an element, you can trigger JavaScript statements with the event. The JavaScript can return a result that is then passed back to the event handler. For example, you can attach some JavaScript to the onclick event of a link so that it returns a Boolean value of true or false. If you click the link, and the event handler receives a value of true, it’s getting the message “yes, this link has been clicked.” If you add some JavaScript to the event handler so that it returns false, then the message being sent back is “no, this link has not been clicked.”
+```
+<a href="http://www.example.com" onclick="return false;">Click me</a>
+```
+If you click that link, the default behavior will not be triggered, because the JavaScript is effectively canceling the default behavior.
+
+### childNodes
+The childNodes property is a way of getting information about the children of any **element** in a document’s node tree. 
+```
+element.childNodes
+```
+
+```javascript
+function countBodyChildren() {
+  var body_element = document.getElementsByTagName("body")[0]; //there is only one body element node
+  alert (body_element.childNodes.length); 
+}
+
+window.onload = countBodyChildren;
+```
+**Note**: The childNodes property returns an array containing **all types of nodes**, not just element nodes. It will bring back all the attribute nodes and text nodes as well. In fact, just about everything in a document is some kind of node. Even **spaces and line breaks** are interpreted as nodes and are included in the childNodes array.
+
+### nodeType property 
+This will tell us exactly what kind of node we’re dealing with. 
+```
+node.nodeType
+```
+**Note:** However, instead of returning a string like “element” or “attribute,” it returns a number.
+There are 12 possible values for nodeType, but only three of them are going to be of much practical use:
+• Element nodes have a nodeType value of 1.
+• Attribute nodes have a nodeType value of 2.
+• Text nodes have a nodeType value of 3.
+
+### nodeValue]
+```
+alert (description.nodeValue); //null
+```
+This will return a value of null. The nodeValue of the paragraph element itself is empty. What you actually want is the value of the text within the paragraph.
+**The text within the paragraph is a different node**. 
+```
+alert(description.childNodes[0].nodeValue); // Choose an image
+```
+updating the text node of a p tage
+```javascript
+function showPic(whichpic) {
+  var source = whichpic.getAttribute("href");
+  var placeholder = document.getElementById("placeholder");
+  placeholder.setAttribute("src",source);
+  var text = whichpic.getAttribute("title");
+  var description = document.getElementById("description"); 
+  description.firstChild.nodeValue = text;
+}
+```
+
+## chapter 5 Best practice
+What this chapter covers:
+• Graceful degradation: ensuring that your web pages still work without JavaScript
+• Unobtrusive JavaScript: separating structure from behavior
+• Backward compatibility: ensuring that older browsers don’t choke on your scripts
+• Performance considerations: making sure that your script is performing at its best
+
+### graceful degradation
+When a technology degrades gracefully, the functionality may be reduced, but it doesn’t fail completely.
+
+### Unobtrusive JavaScript
+Using an attribute like onclick in the markup is just as inefficient as using the style attribute. It would be much better if we could use a **hook, like class or id**, to tether the behavior to the markup without intermingling it. You can attach an event to an element in an external JavaScript file:
+```
+element.event = action;
+```
+```javascript 
+window.onload = prepareLinks; // ensure the document has finished loading
+var links = document.getElementsByTagName("a"); 
+for (var i=0; i<links.length; i++) {
+  if (links[i].getAttribute("class") == "popup") { 
+    links[i].onclick = function() {
+      popUp(this.getAttribute("href"));
+      return false; 
+    }
+  } 
+}
+````
+### Backward compatibility
+Most browsers support JavaScript to some degree, and modern browsers have excellent support for the DOM.So even if a user visits your site with a browser that supports some JavaScript, some of your scripts may not work.
+
+Testing for the existence of a specific property or method that you’re about to use in your code is the safest and surest way of ensuring backward compatibility.
+
+#### Browser sniffing
+There is another technique that was very popular during the dark days of the browser wars. Browser sniffing involves extracting information provided by the browser vendor.
+
+### Performance considerations
+#### Minimizing DOM access and markup
+#### Assembling and placing scripts
+#### Minification
+In most cases, you’ll need to keep **two copies**: a working copy, in which you can make changes and comments, and the minified copy, which you serve up on your site. 
+
+## chapter 6 revisite image gallery
+### DOM Core and HTML-DOM
+So far, I’ve been using a small set of methods to accomplish everything I want to do, including
+• getElementById
+• getElementsByTagName
+• getAttribute
+• setAttribute
+These methods are all part of the DOM Core. They aren’t specific to JavaScript, and they can be used by any programming language with DOM support. They aren’t just for web pages, either. These methods can be used on documents written in any markup language (XML, for instance).
+When you are using JavaScript and the DOM with HTML files, you have many more properties at your disposal. These properties belong to the **HTML-DOM**, which has been around longer than the DOM Core.
+```
+document.getElementsByTagName("form")
+
+document.forms
+
+```
+
+## Chapter 7 create markup on the fly
+It is also possible to use JavaScript to change the structure and contents of a web page. In this chapter, you’ll learn about some DOM methods that can **alter the structure of a web page by creating new elements and modifying existing ones**.
+
+### Some old-school methods
+document.write
+```
+<script>
+  document.write("<p>This is inserted.</p>");
+</script>
+```
+### innerHTML
+```
+<div id="testdiv">
+  <p>This is <em>my</em> content.</p> 
+</div>
+```
+<img src="https://github.com/zhaaaa7/bookNotes/blob/master/img/innerhtml1.png" alt="innerHTML1" width="400px" />
+
+<img src="https://github.com/zhaaaa7/bookNotes/blob/master/img/innerhtml2.png" alt="innerHTML1" width="400px" />
