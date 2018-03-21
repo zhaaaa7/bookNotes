@@ -375,13 +375,13 @@ document.forms
 It is also possible to use JavaScript to change the structure and contents of a web page. In this chapter, you’ll learn about some DOM methods that can **alter the structure of a web page by creating new elements and modifying existing ones**.
 
 ### Some old-school methods
-document.write
+1. document.write
 ```
 <script>
   document.write("<p>This is inserted.</p>");
 </script>
 ```
-### innerHTML
+2. innerHTML
 ```
 <div id="testdiv">
   <p>This is <em>my</em> content.</p> 
@@ -390,3 +390,178 @@ document.write
 <img src="https://github.com/zhaaaa7/bookNotes/blob/master/img/innerhtml1.png" alt="innerHTML1" width="400px" />
 
 <img src="https://github.com/zhaaaa7/bookNotes/blob/master/img/innerhtml2.png" alt="innerHTML1" width="400px" />
+
+If you have a chunk of HTML that you would like to insert verbatim into a web page, innerHTML can do that. It is a read/write property, which means you can use it not only to get the HTML inside an element, but also to set the HTML inside an element.  Once you use innerHTML, its entire contents will be replaced.
+
+### DOM methods
+The DOM is a two-way street. You can query the contents of a document and you can also update the contents of a document. This change is reflected in the document displayed in the browser. This is because the **browser is really displaying the DOM tree**. As far as the browser is concerned, the DOM tree is the document. Once you understand this, the idea of creating markup on the fly isn’t quite so strange. **You aren’t really creating markup, you’re updating the DOM**. 
+
+1. createElement
+```
+<div id="testdiv"> </div>
+```
+Now suppose you want to insert a paragraph into "testdiv". This is a two-step process:
+• Create the new element.
+• Insert the element into the node tree.
+
+```
+var para = document.createElement("p");
+```
+The variable para now contains a reference to the p element you’ve just created. Right now, this newly created paragraph element is floating in JavaScript limbo. The element exists, but it isn’t part of the DOM node tree. This is called a **document fragment**. It **isn’t** displayed in the browser. Nonetheless, it **has DOM properties**, just like any other node. homeless paragraph element has a **nodeType value and a nodeName value**. 
+```javascript
+window.onload = function() {
+var para = document.createElement("p"); 
+var info = "nodeName: ";
+info+= para.nodeName;  //p
+info+= " nodeType: ";
+info+= para.nodeType;  //1
+alert(info); 
+}
+```
+2. appendChild
+The simplest way to insert a newly created node into the node tree of a document is to make it a child of an existing node in that document.
+```
+var testdiv = document.getElementById("testdiv");
+var para = document.createElement("p");
+testdiv.appendChild(para);
+```
+
+3. createTextNode
+The node you have created is an empty paragraph element. If you want to put some text into that paragraph, you can’t use createElement. 
+```
+window.onload = function() {
+  var para = document.createElement("p");
+  var testdiv = document.getElementById("testdiv"); 
+  testdiv.appendChild(para);
+  var txt = document.createTextNode("Hello world"); 
+  para.appendChild(txt);
+}
+```
+
+4. insertBefore
+```
+parentElement.insertBefore(newElement,targetElement)
+```
+```javascript
+var gallery = document.getElementById("imagegallery"); 
+gallery.parentNode.insertBefore(placeholder,gallery);
+```
+
+5. writing a insertAfter function
+```javascript
+function insertAfter(newElement,targetElement) { 
+  var parent = targetElement.parentNode;
+  if (parent.lastChild == targetElement) {
+    parent.appendChild(newElement); 
+  } else {
+    parent.insertBefore(newElement,targetElement.nextSibling); 
+  }
+}
+```
+
+### Ajax
+The advantage of using Ajax is that with Ajax, the request to the server occurs asynchronously to the page. Instead of **serving up a whole new page every time the user sends a request**, the browser can **process requests in the background** while the user continues to view and interact with the page. 
+
+Ajax **relies on JavaScript** and therefore won’t work in some browsers or search engine spiders.
+
+#### The XMLHttpRequest object
+The magic of Ajax is achieved by using the XMLHttpRequest object. This object acts as an **intermediary between your script in the web browser (client) and the server**. 
+
+Instead of the web browser, **JavaScript initiates the requests, and as a result, must also handle the response.**
+
+The XMLHttpRequest object has a number of methods. The most useful of these is open, which is used to point the object at a file on the server. You can also specify what sort of HTTP request you want to make: GET, POST, or SEND. A third parameter specifies whether the request should be processed asynchronously.
+
+```javascript
+function getNewContent() {
+  var request = new XMLHttpRequest();
+  if (request) {
+    request.open( "GET", "example.txt", true ); 
+    request.onreadystatechange = function() {
+      if (request.readyState == 4) {
+        var para = document.createElement("p");
+        var txt = document.createTextNode(request.responseText); 
+        para.appendChild(txt); document.getElementById('new').appendChild(para);
+      }
+    }; 
+    request.send(null);
+    } else {
+    alert('Sorry, your browser doesn\'t support XMLHttpRequest'); 
+  }
+} 
+addLoadEvent(getNewContent);
+```
+
+When the page loads, this will **initiate a GET request to a file** called example.txt in the same directory as the ajax.html file.
+
+The onreadystatechange property is the event handler that is triggered **when the server sends a response back to the XMLHttpRequest object**. You can use it to specify what happens with the response from the server.
+
+The **readyState** property is a numeric value that is updated while the server deals with the request. There are five possible values:
+• 0 for uninitialized
+• 1 for loading
+• 2 for loaded
+• 3 for interactive
+• 4 for complete
+Once the readyState property has a value of 4, you have access to the data sent by the server.
+
+You can access this data as a string of text provided by the **responseText** property. If the data is sent back with a Content-Type header of "text/xml", you can also access the **responseXML** property, which is effectively a DocumentFragment. You can use all the usual DOM methods to manipulate this DocumentFragment. **This is where the XML part of XMLHttpRequest comes from.**
+
+**Caution** One important thing to remember is the **same origin security policy**. Requests using the XMLHttpRequest object are limited to the **same domain** where the HTML file resides. You can't make a request from one domain to another.example produces an error “Cross origin requests are only supported for HTTP” if you're trying to load example.txt from your hard drive using the file:// protocol.
+
+An easy thing to forget is the asynchronous aspect of the request. Once the XMLHttpRequest request has been sent, the script will **continue to execute**, without waiting for the response to return. When the remainder of your script depends on the response, be sure to execute that portion of the script from within the function assigned to the onreadystatechange property.
+
+### Hijax
+Just as it’s easier to say “Ajax” instead of “XMLHttpRequest with DOM scripting, CSS, and (X)HTML,” it’s simpler to say “Hijax” instead of “progressive enhancement using Ajax.”
+Ajax **relies on the server for its power**. A server-side programming language carries out most of the real work. The XMLHttpRequest object acts as a gateway between the browser and the server, transferring requests and responses. If that gateway is removed, it should still be possible to send requests and receive responses. It will just take longer.
+
+## Chapter 9 CSS DOM
+What this chapter covers:
+* Introducing the style property
+* How to retrieve style information   
+* How to change styles
+  
+### Separation
+A good rule of thumb in any design discipline is to use the right tool for the task at hand. For web design, that means:
+* Use (X)HTML to structure your documents.
+* Use CSS to attach presentational information.
+* Use DOM scripting to apply behavioral instructions.
+
+However, there is a certain amount of potential crossover between these three technologies. 
+
+You’ve already seen one example of this. Using the DOM, you can alter the structure of a web page. Methods like createElement and appendChild allow you to create and add markup on the fly.
+
+Another example of technologies crossing over can be found in CSS. **Pseudo-classes like :hover and :focus allow you to change the appearance of elements based on user-triggered events**. Changing the appearance of elements certainly belongs in the presentation layer, but reacting to user-triggered events is part of the behavior layer. This is a situation where presentation and behavior overlap, creating a grey area.
+
+It’s true that CSS is stepping on the DOM’s toes with pseudo-classes. But the Document Object Model can step right back. You can use the DOM to attach presentational information to elements.
+
+### The style property
+Every element in a document is an object, and every one of these objects has a whole collection of properties. 
+
+Some properties contain information about the **element’s position** in the node tree. Properties like parentNode, nextSibling, previousSibling, childNodes, firstChild, and lastChild all supply information about related nodes in the document.
+
+Other properties, like nodeType and nodeName, contain information about the **element itself**. Querying the nodeName property of an element will return a **string** like “p”.
+
+There’s another property called style. Every element node has this property. It contains information about the **styles attached to the element**. Querying this property doesn’t return a simple string; it returns an **object**. Style information is stored as properties of this style object:
+```
+element.style.property
+```
+
+When you want to reference a style property that uses a minus sign, the DOM requires you to use **camel-casing**. The CSS property font-family becomes the DOM property fontFamily:
+```
+element.style.fontFamily
+```
+
+The properties of the style object, on the other hand, are **read/write**. That means you can use an element’s style property to retrieve information, and you can also use it to update information. 
+
+But in this case you actually want to find not just the next node, but specifically the **next element node**. 
+```javascript
+//a recursion
+function getNextElement(node) { 
+  if(node.nodeType == 1) {
+    return node;
+  }
+  if (node.nextSibling) {
+    return getNextElement(node.nextSibling); 
+  }
+  return null;
+}
+```
