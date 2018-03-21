@@ -147,3 +147,81 @@ Attributes are used to give more specific information about an element. The titl
 
 <img src="https://github.com/zhaaaa7/bookNotes/blob/master/img/nodes.png" alt="nodes" width="400px"/>
 
+### Cascading Style Sheets
+The DOM isn’t the only technology that **interacts with the structure of web pages**. CSS is used to instruct a browser how to display the contents of a document.
+
+**Inheritance** is a powerful feature of CSS. Like the DOM, CSS views the contents of a document as a node tree. Elements that are nested within the node tree will inherit the style properties of their parents.
+For instance, declaring colors or fonts on the body element will automatically apply those styles to all the elements contained within the body:
+```
+body {
+  color: white;
+  background-color: black; 
+}
+```
+When you’re applying styles to a document, there are times when you will want to target specific elements. o get this level of precision, you need to insert something into the document itself to **mark the paragraph as a special case**. To mark elements for special treatment, you can use one of two attributes: **class or id**.
+
+**The id attribute acts as a kind of “hook” that can be targeted by CSS. The DOM can use the same hook.**
+
+### Getting Elements
+#### getElementById
+Three handy DOM methods allow you to access element nodes by ID, tag name, and class name.
+```
+document.getElementById(id)
+```
+allows you to get straight to the **element node with the specified id**.
+
+This is referencing the unique element that has been assigned the HTML id attribute "purchases" in the document object. This element also corresponds to an **object**.
+
+In fact, **each element in a document is an object**. Using the DOM, you can “get” at all of these elements.
+
+#### getElementsByTagName
+If you use the method getElementsByTagName, you have instant access to an **array** populated with every occurrence of a specified tag.
+
+Every value in the array is an object.
+```
+var items = document.getElementsByTagName("li"); 
+for (var i=0; i < items.length; i++) {
+  alert(typeof items[i]); 
+}
+```
+
+#### getElementsByClassName
+It also behaves in the same way as getElementsByTagName by returning an array of elements with a common class name. 
+You can also include multiple class names to locate elements that have more than one class. 
+```
+alert(document.getElementsByClassName("important sale").length);
+```
+**The order of the class names doesn’t matter, and it would match if the element had additional class names as well.**
+
+### Getting and Setting Attributes -- works only on element nodes
+Once you have the element, you can find out the values of any of its attributes. You can do this with the getAttribute method. And using the setAttribute method, you can change the value of an attribute node.
+
+#### getAttribute
+getAttribute is a function. It takes only one argument, which is the attribute that you want to get: 
+```
+object.getAttribute(attribute)
+```
+```javascript
+var paras = document.getElementsByTagName("p"); 
+for (var i=0; i< paras.length; i++) {
+  var title_text = paras[i].getAttribute("title");
+  if (title_text) {
+    alert(title_text); 
+  }
+}
+```
+
+#### setAttribute
+It allows you to change the value of an **attribute node**. 
+setAttribute takes two arguments: 
+```
+object.setAttribute(attribute,value)
+```
+In the following example, we’re getting the element with the id "purchases" and giving it a title attribute with the value "a list of goods".
+```
+var shopping = document.getElementById("purchases"); 
+shopping.setAttribute("title","a list of goods");
+```
+
+### dynamic changing
+Note that even when a document has been changed by setAttribute, you won’t see that change reflected when you use the view source option in your web browser. This is because the **DOM has dynamically updated the contents of the page after it has been loaded. The real power of the DOM is that the contents of a page can be updated without refreshing the page in the browser.**
