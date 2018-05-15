@@ -2,8 +2,11 @@
 ## chapter 1 History
 ### DHTML
 DHTML is short for Dynamic HTML. Not a technology in and of itself, DHTML is a shorthand term for describing the combination of HTML, CSS, and JavaScript. The thinking behind DHTML went like this:
+
 • You could use HTML to mark up your web page into elements.
+
 • You could use CSS to style and position those elements.
+
 • You could use JavaScript to manipulate and change those styles on the fly.
 
 While the browser manufacturers simply wanted some way to manipulate web pages with JavaScript, the W3C proposed a model that could be used by any programming language to manipulate any document written in any markup language.
@@ -293,7 +296,7 @@ There are 12 possible values for nodeType, but only three of them are going to b
 • Attribute nodes have a nodeType value of 2.
 • Text nodes have a nodeType value of 3.
 
-### nodeValue]
+### nodeValue
 ```
 alert (description.nodeValue); //null
 ```
